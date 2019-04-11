@@ -5,9 +5,16 @@ import random
 
 import haravasto
 
+VAIKEUSASTEET = {
+    "helppo": {"ruutuja": 25, "miinoja": 10},
+    "normaali": {"ruutuja": 50, "miinoja": 20},
+    "vaikea": {"ruutuja": 100, "miinoja": 30}
+}
+
 TILA = {
     "kentta": [],
     "vaikeus": None,
+    "nimi": None,
 }
 
 
@@ -16,11 +23,11 @@ def nayta_paavalikko():
     Esittää päävalikon terminaalissa.
     """
     try:
+        print("Tervetuloa Python miinaharavaan!")
+        print("(A)loita uusi peli")
+        print("(T)ulosta tilastot")
+        print("(L)opeta")
         while True:
-            print("Tervetuloa Python miinaharavaan!")
-            print("(A)loita uusi peli")
-            print("(T)ulosta tilastot")
-            print("(L)opeta")
             syote = input(
                 "Valitse haluttu toiminto syöttämällä korostettu näppäin: ")
             syote = syote.strip().lower()
@@ -31,7 +38,9 @@ def nayta_paavalikko():
             elif syote == "l":
                 print("Hei hei!")
                 break
-    except KeyboardInterrupt:
+            else:
+                print("Anna oikea syöte! (a, t, l)")
+    except (KeyboardInterrupt, EOFError):
         print()
         print("Hei hei!")
 
@@ -61,10 +70,40 @@ def aloita_peli():
     """
     Aloittaa uuden pelin.
     """
-    pass
+    while True:
+        nimi = input("Anna käyttäjänimi(max 8 merkkiä): ").strip()
+        if len(nimi) > 8:
+            print("Nimi on liian pitkä")
+        else:
+            TILA["nimi"] = nimi
+            break
+    print("Valitse vaikeusaste:")
+    print("(H)elppo")
+    print("(N)ormaali")
+    print("(V)aikea")
+    while True:
+        syote = input(":").strip().lower()
+        if syote == "h":
+            TILA["vaikeus"] = VAIKEUSASTEET["helppo"]
+            break
+        elif syote == "n":
+            TILA["vaikeus"] = VAIKEUSASTEET["normaali"]
+            break
+        elif syote == "v":
+            TILA["vaikeus"] = VAIKEUSASTEET["vaikea"]
+            break
+        else:
+            print("Anna oikea syöte!(h, n, v)")
+    luo_kentta(TILA["vaikeus"])
+    haravasto.lataa_kuvat("spritet")
+    haravasto.luo_ikkuna(
+        leveys=len(TILA["kentta"][0]) * 40, korkeus=len(TILA["kentta"] * 40))
+    haravasto.aseta_piirto_kasittelija(piirra_kentta)
+    haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
+    haravasto.aloita()
 
 
-def luo_kentta():
+def luo_kentta(vaikeusaste):
     """
     Funktio joka luo annettujen parametrien pohjalta miinakentän.
     """
