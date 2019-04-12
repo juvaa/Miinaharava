@@ -14,6 +14,7 @@ VAIKEUSASTEET = {
 
 TILA = {
     "kentta": [],
+    "nayttokentta": [],
     "vaikeus": None,
     "nimi": None,
 }
@@ -83,7 +84,7 @@ def aloita_peli():
     print("(N)ormaali")
     print("(V)aikea")
     while True:
-        syote = input(":").strip().lower()
+        syote = input("Valinta: ").strip().lower()
         if syote == "h":
             TILA["vaikeus"] = VAIKEUSASTEET["helppo"]
             break
@@ -158,7 +159,7 @@ def piirra_kentta():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(TILA["kentta"]):
+    for y, rivi in enumerate(TILA["nayttokentta"]):
         for x, merkki in enumerate(rivi):
             if merkki == "x":
                 haravasto.lisaa_piirrettava_ruutu("x", x * 40, y * 40)
