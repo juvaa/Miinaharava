@@ -19,7 +19,9 @@ tila = {
     "vaikeus": {},
     "nimi": None,
     "aika": "00:00:00",
-    "vuoro": "0",
+    "vuoro": 0,
+    "havio": False,
+    "voitto": False,
 }
 
 
@@ -148,16 +150,29 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         "keski": haravasto.HIIRI_KESKI,
         "oikea": haravasto.HIIRI_OIKEA
     }
+    rajat = {
+            "leveys_min": 0,
+            "leveys_max": len(tila["kentta"][0]) - 1,
+            "korkeus_min": 0,
+            "korkeus_max": len(tila["kentta"]) - 1
+        }
     if hiiri_nappain == hiiren_nappaimet["vasen"]:
-        print("Hiiren nappia vasen painettiin kohdassa {x}, {y}".format(
-            x=hiiri_x,
-            y=hiiri_y
-        ))
+        x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
+        y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
+        if tila["kentta"][y][x] == "x":
+            tila["havio"] = True
+        elif ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
+                (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
+                # Ehtojen täyttyessä
+            tulvataytto(tila["naytto"], x, y)
+            tila["vuoro"] += 1
     elif hiiri_nappain == hiiren_nappaimet["oikea"]:
-        print("Hiiren nappia oikea painettiin kohdassa {x}, {y}".format(
-            x=hiiri_x,
-            y=hiiri_y
-        ))
+        x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
+        y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
+        if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
+                (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
+                # Ehtojen täyttyessä
+                tila["naytto"][y][x] = "f"
 
 
 def piirra_kentta():
@@ -171,7 +186,7 @@ def piirra_kentta():
     haravasto.piirra_tekstia("Aika:", 50, 500)
     haravasto.piirra_tekstia(tila["aika"], 50, 450)
     haravasto.piirra_tekstia("Vuoro:", 300, 500)
-    haravasto.piirra_tekstia(tila["vuoro"], 300, 450)
+    haravasto.piirra_tekstia(str(tila["vuoro"]), 300, 450)
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(tila["naytto"]):
         for x, merkki in enumerate(rivi):
@@ -188,8 +203,6 @@ def tulvataytto(ruudukko, x_alku, y_alku):
     Merkitsee kentällä olevat tuntemattomat ruudut turvallisiksi
     siten, että täyttö aloitetaan annetusta x, y -pisteestä.
     """
-    if ruudukko[y_alku][x_alku] == "x":
-        return
     tuntemattomat = [
         (x_alku, y_alku),
     ]
