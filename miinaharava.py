@@ -2,6 +2,7 @@
 Pythonilla toteutettu versio miinaharava pelistä.
 """
 import random
+import datetime
 
 import haravasto
 
