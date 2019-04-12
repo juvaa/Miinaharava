@@ -122,10 +122,15 @@ def miinoita():
     """
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
+    n_miinoja = TILA["vaikeus"]["miinoja"]
+    vapaat_rudut = []
+    for x in range((len(TILA["kentta"]) - 1)):
+        for y in range((len(TILA["kentta"]) - 1)):
+            vapaat_rudut.append((x, y))
     while n_miinoja > 0:
         x, y = random.choice(vapaat_rudut)
         vapaat_rudut.remove((x, y))
-        kentta[y][x] = "x"
+        TILA["kentta"][y][x] = "x"
         n_miinoja -= 1
 
 
