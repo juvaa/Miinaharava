@@ -8,14 +8,14 @@ import haravasto
 
 VAIKEUSASTEET = {
     "helppo": {"ruutuja": 25, "miinoja": 10},
-    "normaali": {"ruutuja": 50, "miinoja": 20},
+    "normaali": {"ruutuja": 49, "miinoja": 20},
     "vaikea": {"ruutuja": 100, "miinoja": 30}
 }
 
 TILA = {
     "kentta": [],
     "nayttokentta": [],
-    "vaikeus": None,
+    "vaikeus": {},
     "nimi": None,
 }
 
@@ -96,7 +96,7 @@ def aloita_peli():
             break
         else:
             print("Anna oikea syöte!(h, n, v)")
-    luo_kentta(TILA["vaikeus"])
+    luo_kentta()
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
         leveys=len(TILA["kentta"][0]) * 40, korkeus=len(TILA["kentta"] * 40))
@@ -105,14 +105,20 @@ def aloita_peli():
     haravasto.aloita()
 
 
-def luo_kentta(vaikeusaste):
+def luo_kentta():
     """
-    Funktio joka luo annettujen parametrien pohjalta miinakentän.
+    Funktio joka luo valitun vaikeusasteen pohjalta miinakentän.
     """
-    pass
+    koko = TILA["vaikeus"]["ruutuja"] ** (1 / 2)
+    for rivi in range(koko):
+        TILA["kentta"].append([])
+        for sarake in range(koko):
+            TILA["kentta"][-1].append(" ")
+    TILA["nayttokentta"] = TILA["kentta"][:]
+    miinoita()
 
 
-def miinoita(kentta, vapaat_rudut, n_miinoja):
+def miinoita():
     """
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
@@ -170,7 +176,7 @@ def piirra_kentta():
 
 def tulvataytto(ruudukko, x_alku, y_alku):
     """
-    Merkitsee planeetalla olevat tuntemattomat alueet turvalliseksi
+    Merkitsee kentällä olevat tuntemattomat ruudut turvallisiksi
     siten, että täyttö aloitetaan annetusta x, y -pisteestä.
     """
     if ruudukko[y_alku][x_alku] == "x":
