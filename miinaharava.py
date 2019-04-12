@@ -8,9 +8,9 @@ import copy
 import haravasto
 
 VAIKEUSASTEET = {
-    "helppo": {"ruutuja": 25, "miinoja": 10},
-    "normaali": {"ruutuja": 49, "miinoja": 20},
-    "vaikea": {"ruutuja": 100, "miinoja": 30}
+    "helppo": {"ruutuja": 25, "miinoja": 10, "piirtomarginaali": 150},
+    "normaali": {"ruutuja": 49, "miinoja": 20, "piirtomarginaali": 112},
+    "vaikea": {"ruutuja": 100, "miinoja": 30, "piirtomarginaali": 50}
 }
 
 tila = {
@@ -18,6 +18,8 @@ tila = {
     "naytto": [],
     "vaikeus": {},
     "nimi": None,
+    "aika": "00:00:00",
+    "vuoro": "0",
 }
 
 
@@ -26,11 +28,11 @@ def nayta_paavalikko():
     Esittää päävalikon terminaalissa.
     """
     try:
-        print("Tervetuloa Python miinaharavaan!")
-        print("(A)loita uusi peli")
-        print("(T)ulosta tilastot")
-        print("(L)opeta")
         while True:
+            print("Tervetuloa Python miinaharavaan!")
+            print("(A)loita uusi peli")
+            print("(T)ulosta tilastot")
+            print("(L)opeta")
             syote = input(
                 "Valitse haluttu toiminto syöttämällä korostettu näppäin: ")
             syote = syote.strip().lower()
@@ -100,10 +102,11 @@ def aloita_peli():
     luo_kentta()
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
-        leveys=len(tila["kentta"][0]) * 40, korkeus=len(tila["kentta"] * 40))
+        leveys=500, korkeus=600)
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aloita()
+    tila["kentta"] = []
 
 
 def luo_kentta():
@@ -117,7 +120,7 @@ def luo_kentta():
             tila["kentta"][-1].append(" ")
     tila["naytto"] = copy.deepcopy(tila["kentta"])
     miinoita(tila["kentta"])
-    
+
 
 def miinoita(kentta):
     """
@@ -150,11 +153,6 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
             x=hiiri_x,
             y=hiiri_y
         ))
-    elif hiiri_nappain == hiiren_nappaimet["keski"]:
-        print("Hiiren nappia keski painettiin kohdassa {x}, {y}".format(
-            x=hiiri_x,
-            y=hiiri_y
-        ))
     elif hiiri_nappain == hiiren_nappaimet["oikea"]:
         print("Hiiren nappia oikea painettiin kohdassa {x}, {y}".format(
             x=hiiri_x,
@@ -170,13 +168,18 @@ def piirra_kentta():
     """
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
+    haravasto.piirra_tekstia("Aika:", 50, 500)
+    haravasto.piirra_tekstia(tila["aika"], 50, 450)
+    haravasto.piirra_tekstia("Vuoro:", 300, 500)
+    haravasto.piirra_tekstia(tila["vuoro"], 300, 450)
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(tila["naytto"]):
         for x, merkki in enumerate(rivi):
-            if merkki == "x":
-                haravasto.lisaa_piirrettava_ruutu("x", x * 40, y * 40)
-            else:
-                haravasto.lisaa_piirrettava_ruutu(" ", x * 40, y * 40)
+                haravasto.lisaa_piirrettava_ruutu(
+                    merkki,
+                    x * 40 + tila["vaikeus"]["piirtomarginaali"],
+                    y * 40 + tila["vaikeus"]["piirtomarginaali"]
+                )
     haravasto.piirra_ruudut()
 
 
