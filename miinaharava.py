@@ -14,7 +14,7 @@ VAIKEUSASTEET = {
 
 TILA = {
     "kentta": [],
-    "nayttokentta": [],
+    "naytto": [],
     "vaikeus": {},
     "nimi": None,
 }
@@ -109,30 +109,37 @@ def luo_kentta():
     """
     Funktio joka luo valitun vaikeusasteen pohjalta miinakentän.
     """
-    koko = TILA["vaikeus"]["ruutuja"] ** (1 / 2)
+    koko = int(TILA["vaikeus"]["ruutuja"] ** (1 / 2))
     for rivi in range(koko):
-        TILA["kentta"].append([])
+        TILA["naytto"].append([])
         for sarake in range(koko):
-            TILA["kentta"][-1].append(" ")
-    TILA["nayttokentta"] = TILA["kentta"][:]
-    miinoita()
+            TILA["naytto"][-1].append(" ")
+    TILA["kentta"] = TILA["naytto"][:]
+    
+    print(TILA["kentta"])
+    print(TILA["naytto"])
+   
+    miinoita(TILA["kentta"])
+    
+    print(TILA["kentta"])
+    print(TILA["naytto"])
 
-
-def miinoita():
+def miinoita(kentta):
     """
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
     n_miinoja = TILA["vaikeus"]["miinoja"]
     vapaat_rudut = []
-    for x in range((len(TILA["kentta"]) - 1)):
-        for y in range((len(TILA["kentta"]) - 1)):
+    for x in range(len(kentta)):
+        for y in range(len(kentta)):
             vapaat_rudut.append((x, y))
     while n_miinoja > 0:
         x, y = random.choice(vapaat_rudut)
         vapaat_rudut.remove((x, y))
-        TILA["kentta"][y][x] = "x"
+        kentta[y][x] = "x"
         n_miinoja -= 1
-
+    print(TILA["kentta"])
+    print(TILA["naytto"])
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
     """
@@ -170,7 +177,7 @@ def piirra_kentta():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(TILA["nayttokentta"]):
+    for y, rivi in enumerate(TILA["naytto"]):
         for x, merkki in enumerate(rivi):
             if merkki == "x":
                 haravasto.lisaa_piirrettava_ruutu("x", x * 40, y * 40)
