@@ -109,6 +109,7 @@ def aloita_peli():
         leveys=500, korkeus=600)
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
+    haravasto.aseta_toistuva_kasittelija(paivita_peli)
     haravasto.aloita()
     tila["kentta"] = []
 
@@ -141,6 +142,14 @@ def miinoita(kentta):
         vapaat_rudut.remove((x, y))
         kentta[y][x] = "x"
         n_miinoja -= 1
+
+
+def paivita_peli(kulunut_aika):
+    """
+    Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
+    Tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
+    """
+    pass
 
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
