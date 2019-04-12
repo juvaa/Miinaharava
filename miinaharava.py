@@ -167,5 +167,40 @@ def piirra_kentta():
     haravasto.piirra_ruudut()
 
 
+def tulvataytto(ruudukko, x_alku, y_alku):
+    """
+    Merkitsee planeetalla olevat tuntemattomat alueet turvalliseksi
+    siten, että täyttö aloitetaan annetusta x, y -pisteestä.
+    """
+    if ruudukko[y_alku][x_alku] == "x":
+        return
+    tuntemattomat = [
+        (x_alku, y_alku),
+    ]
+    while tuntemattomat:
+        x_kasittely, y_kasittely = tuntemattomat.pop()
+        ruudukko[y_kasittely][x_kasittely] = "0"
+        rajat = {
+            "leveys_min": 0,
+            "leveys_max": len(ruudukko[0]) - 1,
+            "korkeus_min": 0,
+            "korkeus_max": len(ruudukko) - 1
+        }
+        kasiteltavat = []
+        rivit = [y_kasittely - 1, y_kasittely, y_kasittely + 1]
+        sarakkeet = [x_kasittely - 1, x_kasittely, x_kasittely + 1]
+        for rivi in rivit:
+            for sarake in sarakkeet:
+                if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
+                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                    # Ehtojen täyttyessä
+                    kasiteltavat.append((sarake, rivi))
+
+        for x, y in kasiteltavat:
+            merkki = ruudukko[y][x]
+            if merkki == " ":
+                tuntemattomat.append((x, y))
+
+
 if __name__ == "__main__":
     nayta_paavalikko()
