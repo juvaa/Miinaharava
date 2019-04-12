@@ -1,5 +1,6 @@
 """
 Pythonilla toteutettu versio miinaharava pelistä.
+Tekijä: Julius Välimaa, julius.valimaa@gmail.com
 """
 import random
 import datetime
@@ -20,6 +21,7 @@ tila = {
     "nimi": None,
     "aika": "00:00:00",
     "vuoro": 0,
+    "jaljella": None,
     "havio": False,
     "voitto": False,
 }
@@ -129,6 +131,7 @@ def miinoita(kentta):
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
     n_miinoja = tila["vaikeus"]["miinoja"]
+    tila["jaljella"] = n_miinoja
     vapaat_rudut = []
     for x in range(len(kentta)):
         for y in range(len(kentta)):
@@ -172,7 +175,12 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
                 (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
                 # Ehtojen täyttyessä
-                tila["naytto"][y][x] = "f"
+                if tila["naytto"][y][x] == " ":
+                    tila["naytto"][y][x] = "f"
+                    tila["jaljella"] -= 1
+                elif tila["naytto"][y][x] == "f":
+                    tila["naytto"][y][x] = " "
+                    tila["jaljella"] += 1
 
 
 def piirra_kentta():
@@ -187,6 +195,8 @@ def piirra_kentta():
     haravasto.piirra_tekstia(tila["aika"], 50, 450)
     haravasto.piirra_tekstia("Vuoro:", 300, 500)
     haravasto.piirra_tekstia(str(tila["vuoro"]), 300, 450)
+    haravasto.piirra_tekstia("Miinoja jäljellä:", 50, 550)
+    haravasto.piirra_tekstia(str(tila["jaljella"]), 400, 550)
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(tila["naytto"]):
         for x, merkki in enumerate(rivi):
