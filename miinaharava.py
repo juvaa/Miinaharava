@@ -3,6 +3,7 @@ Pythonilla toteutettu versio miinaharava pelistä.
 """
 import random
 import datetime
+import copy
 
 import haravasto
 
@@ -12,7 +13,7 @@ VAIKEUSASTEET = {
     "vaikea": {"ruutuja": 100, "miinoja": 30}
 }
 
-TILA = {
+tila = {
     "kentta": [],
     "naytto": [],
     "vaikeus": {},
@@ -77,7 +78,7 @@ def aloita_peli():
         if len(nimi) > 8:
             print("Nimi on liian pitkä")
         else:
-            TILA["nimi"] = nimi
+            tila["nimi"] = nimi
             break
     print("Valitse vaikeusaste:")
     print("(H)elppo")
@@ -86,20 +87,20 @@ def aloita_peli():
     while True:
         syote = input("Valinta: ").strip().lower()
         if syote == "h":
-            TILA["vaikeus"] = VAIKEUSASTEET["helppo"]
+            tila["vaikeus"] = VAIKEUSASTEET["helppo"]
             break
         elif syote == "n":
-            TILA["vaikeus"] = VAIKEUSASTEET["normaali"]
+            tila["vaikeus"] = VAIKEUSASTEET["normaali"]
             break
         elif syote == "v":
-            TILA["vaikeus"] = VAIKEUSASTEET["vaikea"]
+            tila["vaikeus"] = VAIKEUSASTEET["vaikea"]
             break
         else:
             print("Anna oikea syöte!(h, n, v)")
     luo_kentta()
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
-        leveys=len(TILA["kentta"][0]) * 40, korkeus=len(TILA["kentta"] * 40))
+        leveys=len(tila["kentta"][0]) * 40, korkeus=len(tila["kentta"] * 40))
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aloita()
@@ -109,26 +110,20 @@ def luo_kentta():
     """
     Funktio joka luo valitun vaikeusasteen pohjalta miinakentän.
     """
-    koko = int(TILA["vaikeus"]["ruutuja"] ** (1 / 2))
+    koko = int(tila["vaikeus"]["ruutuja"] ** (1 / 2))
     for rivi in range(koko):
-        TILA["naytto"].append([])
+        tila["kentta"].append([])
         for sarake in range(koko):
-            TILA["naytto"][-1].append(" ")
-    TILA["kentta"] = TILA["naytto"][:]
+            tila["kentta"][-1].append(" ")
+    tila["naytto"] = copy.deepcopy(tila["kentta"])
+    miinoita(tila["kentta"])
     
-    print(TILA["kentta"])
-    print(TILA["naytto"])
-   
-    miinoita(TILA["kentta"])
-    
-    print(TILA["kentta"])
-    print(TILA["naytto"])
 
 def miinoita(kentta):
     """
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
-    n_miinoja = TILA["vaikeus"]["miinoja"]
+    n_miinoja = tila["vaikeus"]["miinoja"]
     vapaat_rudut = []
     for x in range(len(kentta)):
         for y in range(len(kentta)):
@@ -138,8 +133,7 @@ def miinoita(kentta):
         vapaat_rudut.remove((x, y))
         kentta[y][x] = "x"
         n_miinoja -= 1
-    print(TILA["kentta"])
-    print(TILA["naytto"])
+
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
     """
@@ -177,7 +171,7 @@ def piirra_kentta():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(TILA["naytto"]):
+    for y, rivi in enumerate(tila["naytto"]):
         for x, merkki in enumerate(rivi):
             if merkki == "x":
                 haravasto.lisaa_piirrettava_ruutu("x", x * 40, y * 40)
