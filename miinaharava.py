@@ -105,6 +105,11 @@ def aloita_peli():
             break
         else:
             print("Anna oikea syöte!(h, n, v)")
+    print("Ohjeet: Klikkaa hiiren vasemmalla näppäimellä ruutua,")
+    print("jonka haluat avata. Klikkaa oikealla asettaaksesi lipun.")
+    print("Peli päätty, kun osut miinaan tai kentällä ei ole ruutuja,")
+    print("joissa ei ole lippua.")
+    input("--Paina ENTER aloittaaksesi pelin--")
     luo_kentta()
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
