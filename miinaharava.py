@@ -168,22 +168,18 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
             "korkeus_min": 0,
             "korkeus_max": len(tila["kentta"]) - 1
         }
-    if hiiri_nappain == hiiren_nappaimet["vasen"]:
-        x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
-        y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
-        if tila["kentta"][y][x] == "x":
-            tila["havio"] = True
-        elif ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
+    x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
+    y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
+    if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
                 (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
                 # Ehtojen täyttyessä
-            tulvataytto(tila["naytto"], x, y)
-            tila["vuoro"] += 1
-    elif hiiri_nappain == hiiren_nappaimet["oikea"]:
-        x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
-        y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
-        if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
-                (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
-                # Ehtojen täyttyessä
+        if hiiri_nappain == hiiren_nappaimet["vasen"]:
+            if tila["kentta"][y][x] == "x":
+                tila["havio"] = True
+            elif tila["kentta"][y][x] == " ":
+                tulvataytto(tila["naytto"], x, y)
+                tila["vuoro"] += 1
+        elif hiiri_nappain == hiiren_nappaimet["oikea"]:
                 if tila["naytto"][y][x] == " ":
                     tila["naytto"][y][x] = "f"
                     tila["jaljella"] -= 1
