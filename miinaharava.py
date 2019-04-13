@@ -10,8 +10,8 @@ import haravasto
 
 VAIKEUSASTEET = {
     "helppo": {"ruutuja": 10, "miinoja": 10, "piirtomarginaali": 300},
-    "normaali": {"ruutuja": 15, "miinoja": 22, "piirtomarginaali": 200},
-    "vaikea": {"ruutuja": 20, "miinoja": 40, "piirtomarginaali": 100}
+    "normaali": {"ruutuja": 15, "miinoja": 38, "piirtomarginaali": 200},
+    "vaikea": {"ruutuja": 20, "miinoja": 60, "piirtomarginaali": 100}
 }
 
 MERKIT = ["1", "2", "3", "4", "5", "6", "7", "8"]
@@ -129,16 +129,33 @@ def luo_kentta():
     tila["naytto"] = copy.deepcopy(tila["kentta"])
 
 
-def miinoita(kentta):
+def miinoita(kentta, x_alku, y_alku):
     """
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
+    rajat = {
+            "leveys_min": 0,
+            "leveys_max": len(kentta[0]) - 1,
+            "korkeus_min": 0,
+            "korkeus_max": len(kentta) - 1
+    }
     n_miinoja = tila["vaikeus"]["miinoja"]
     tila["jaljella"] = n_miinoja
     vapaat_rudut = []
     for x in range(len(kentta)):
         for y in range(len(kentta)):
             vapaat_rudut.append((x, y))
+    turva_alue = []
+    rivit = [y_alku - 1, y_alku, y_alku + 1]
+    sarakkeet = [x_alku - 1, x_alku, x_alku + 1]
+    for rivi in rivit:
+        for sarake in sarakkeet:
+            if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
+                (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                # Ehtojen täyttyessä
+                turva_alue.append((sarake, rivi))
+    for x, y in turva_alue:
+        vapaat_rudut.remove((x, y))
     while n_miinoja > 0:
         x, y = random.choice(vapaat_rudut)
         vapaat_rudut.remove((x, y))
@@ -147,10 +164,10 @@ def miinoita(kentta):
     for y, rivi in enumerate(kentta):
         for x, merkki in enumerate(rivi):
             if merkki == " ":
-                kentta[y][x] = str(laske_minat(kentta, x, y))
+                kentta[y][x] = str(laske_miinat(kentta, x, y))
 
 
-def laske_minat(ruudukko, x_koordinaatti, y_koordinaatti):
+def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     """
     Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on. 
     """
@@ -206,7 +223,7 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
         # Ehtojen täyttyessä
         while tila["vuoro"] == None:
-            miinoita(tila["kentta"])
+            miinoita(tila["kentta"], x, y)
             tila["vuoro"] = 0
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
             if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
