@@ -22,7 +22,7 @@ tila = {
     "vaikeus": {},
     "nimi": None,
     "aika": "00:00:00",
-    "vuoro": 0,
+    "vuoro": None,
     "jaljella": None,
     "havio": False,
     "voitto": False,
@@ -113,6 +113,7 @@ def aloita_peli():
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
     haravasto.aloita()
+    tila["vuoro"] = None
     tila["kentta"] = []
 
 
@@ -126,7 +127,6 @@ def luo_kentta():
         for sarake in range(koko):
             tila["kentta"][-1].append(" ")
     tila["naytto"] = copy.deepcopy(tila["kentta"])
-    miinoita(tila["kentta"])
 
 
 def miinoita(kentta):
@@ -203,13 +203,17 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
     x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
     y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
     if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
-                (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
-                # Ehtojen täyttyessä
+        (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
+        # Ehtojen täyttyessä
+        while tila["vuoro"] == None:
+            miinoita(tila["kentta"])
+            tila["vuoro"] = 0
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
             if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
                 tila["havio"] = True
-            elif tila["naytto"][y][x] in MERKIT and tila["naytto"][y][x] != "f":
-                tila["naytto"][y][x] = tila["kentta"]
+            elif tila["kentta"][y][x] in MERKIT and tila["naytto"][y][x] != "f":
+                tila["naytto"][y][x] = tila["kentta"][y][x]
+                tila["vuoro"] += 1 
             elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
                 tulvataytto(x, y)
                 tila["vuoro"] += 1
