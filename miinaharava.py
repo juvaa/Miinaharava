@@ -9,9 +9,9 @@ import copy
 import haravasto
 
 VAIKEUSASTEET = {
-    "helppo": {"ruutuja": 25, "miinoja": 10, "piirtomarginaali": 150},
-    "normaali": {"ruutuja": 49, "miinoja": 20, "piirtomarginaali": 112},
-    "vaikea": {"ruutuja": 100, "miinoja": 30, "piirtomarginaali": 50}
+    "helppo": {"ruutuja": 10, "miinoja": 10, "piirtomarginaali": 300},
+    "normaali": {"ruutuja": 15, "miinoja": 22, "piirtomarginaali": 200},
+    "vaikea": {"ruutuja": 20, "miinoja": 40, "piirtomarginaali": 100}
 }
 
 tila = {
@@ -106,7 +106,7 @@ def aloita_peli():
     luo_kentta()
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
-        leveys=500, korkeus=600)
+        leveys=1000, korkeus=1000)
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
@@ -118,7 +118,7 @@ def luo_kentta():
     """
     Funktio joka luo valitun vaikeusasteen pohjalta miinakentän.
     """
-    koko = int(tila["vaikeus"]["ruutuja"] ** (1 / 2))
+    koko = tila["vaikeus"]["ruutuja"]
     for rivi in range(koko):
         tila["kentta"].append([])
         for sarake in range(koko):
@@ -228,12 +228,12 @@ def piirra_kentta():
     """
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
-    haravasto.piirra_tekstia("Aika:", 50, 500)
-    haravasto.piirra_tekstia(tila["aika"], 50, 450)
-    haravasto.piirra_tekstia("Vuoro:", 300, 500)
-    haravasto.piirra_tekstia(str(tila["vuoro"]), 300, 450)
-    haravasto.piirra_tekstia("Miinoja jäljellä:", 50, 550)
-    haravasto.piirra_tekstia(str(tila["jaljella"]), 400, 550)
+    haravasto.piirra_tekstia("Aika:", 50, 950)
+    haravasto.piirra_tekstia(tila["aika"], 50, 910)
+    haravasto.piirra_tekstia("Vuoro:", 800, 950)
+    haravasto.piirra_tekstia(str(tila["vuoro"]), 800, 910)
+    haravasto.piirra_tekstia("Miinoja jäljellä:", 350, 950)
+    haravasto.piirra_tekstia(str(tila["jaljella"]), 350, 910)
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(tila["kentta"]):
         for x, merkki in enumerate(rivi):
