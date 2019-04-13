@@ -14,6 +14,8 @@ VAIKEUSASTEET = {
     "vaikea": {"ruutuja": 20, "miinoja": 40, "piirtomarginaali": 100}
 }
 
+MERKIT = ["1", "2", "3", "4", "5", "6", "7", "8"]
+
 tila = {
     "kentta": [],
     "naytto": [],
@@ -171,8 +173,6 @@ def laske_minat(ruudukko, x_koordinaatti, y_koordinaatti):
         merkki = ruudukko[y][x]
         if merkki == "x":
             miinoja += 1
-    if miinoja == 0:
-        miinoja = " "
     return miinoja
 
 
@@ -206,10 +206,12 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
                 (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
                 # Ehtojen täyttyessä
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
-            if tila["kentta"][y][x] == "x":
+            if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
                 tila["havio"] = True
-            elif tila["kentta"][y][x] == " ":
-                tulvataytto(tila["kentta"], x, y)
+            elif tila["naytto"][y][x] in MERKIT and tila["naytto"][y][x] != "f":
+                tila["naytto"][y][x] = tila["kentta"]
+            elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
+                tulvataytto(x, y)
                 tila["vuoro"] += 1
         elif hiiri_nappain == hiiren_nappaimet["oikea"]:
                 if tila["naytto"][y][x] == " ":
@@ -218,6 +220,40 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
                 elif tila["naytto"][y][x] == "f":
                     tila["naytto"][y][x] = " "
                     tila["jaljella"] += 1
+
+
+def tulvataytto(x_alku, y_alku):
+    """
+    Merkitsee kentällä olevat tuntemattomat ruudut turvallisiksi
+    siten, että täyttö aloitetaan annetusta x, y -pisteestä.
+    """
+    tuntemattomat = [
+        (x_alku, y_alku),
+    ]
+    while tuntemattomat:
+        x_kasit, y_kasit = tuntemattomat.pop()
+        tila["naytto"][y_kasit][x_kasit] = tila["kentta"][y_kasit][x_kasit]
+        rajat = {
+            "leveys_min": 0,
+            "leveys_max": len(tila["naytto"][0]) - 1,
+            "korkeus_min": 0,
+            "korkeus_max": len(tila["naytto"]) - 1
+        }
+        kasiteltavat = []
+        rivit = [y_kasit - 1, y_kasit, y_kasit + 1]
+        sarakkeet = [x_kasit - 1, x_kasit, x_kasit + 1]
+        for rivi in rivit:
+            for sarake in sarakkeet:
+                if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
+                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                    # Ehtojen täyttyessä
+                    kasiteltavat.append((sarake, rivi))
+        for x, y in kasiteltavat:
+            if tila["naytto"][y][x] == " " and tila["kentta"][y][x] in MERKIT:
+                tila["naytto"][y][x] = tila["kentta"][y][x]
+                continue
+            elif tila["naytto"][y][x] == " " and tila["kentta"][y][x] != "x":
+                tuntemattomat.append((x, y))
 
 
 def piirra_kentta():
@@ -235,7 +271,7 @@ def piirra_kentta():
     haravasto.piirra_tekstia("Miinoja jäljellä:", 350, 950)
     haravasto.piirra_tekstia(str(tila["jaljella"]), 350, 910)
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(tila["kentta"]):
+    for y, rivi in enumerate(tila["naytto"]):
         for x, merkki in enumerate(rivi):
                 haravasto.lisaa_piirrettava_ruutu(
                     merkki,
@@ -243,39 +279,6 @@ def piirra_kentta():
                     y * 40 + tila["vaikeus"]["piirtomarginaali"]
                 )
     haravasto.piirra_ruudut()
-
-
-def tulvataytto(ruudukko, x_alku, y_alku):
-    """
-    Merkitsee kentällä olevat tuntemattomat ruudut turvallisiksi
-    siten, että täyttö aloitetaan annetusta x, y -pisteestä.
-    """
-    tuntemattomat = [
-        (x_alku, y_alku),
-    ]
-    while tuntemattomat:
-        x_kasittely, y_kasittely = tuntemattomat.pop()
-        ruudukko[y_kasittely][x_kasittely] = "0"
-        rajat = {
-            "leveys_min": 0,
-            "leveys_max": len(ruudukko[0]) - 1,
-            "korkeus_min": 0,
-            "korkeus_max": len(ruudukko) - 1
-        }
-        kasiteltavat = []
-        rivit = [y_kasittely - 1, y_kasittely, y_kasittely + 1]
-        sarakkeet = [x_kasittely - 1, x_kasittely, x_kasittely + 1]
-        for rivi in rivit:
-            for sarake in sarakkeet:
-                if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
-                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
-                    # Ehtojen täyttyessä
-                    kasiteltavat.append((sarake, rivi))
-
-        for x, y in kasiteltavat:
-            merkki = ruudukko[y][x]
-            if merkki == " ":
-                tuntemattomat.append((x, y))
 
 
 if __name__ == "__main__":
