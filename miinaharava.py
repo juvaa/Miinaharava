@@ -21,11 +21,15 @@ tila = {
     "naytto": [],
     "vaikeus": {},
     "nimi": None,
-    "aika": 0.0,
+    "aika": "00:00:00",
+    "ajasta": False,
+    "aloitus": None,
+    "nyt": None,
     "vuoro": None,
     "jaljella": None,
     "havio": False,
     "voitto": False,
+    "tallennettu": False,
 }
 piirto = {
     "ruudukko": [],
@@ -217,12 +221,18 @@ def paivita_peli(kulunut_aika):
                     break
                 else:
                     tila["voitto"] = True
-    while tila["havio"] or tila["voitto"]:
+    if tila["havio"] or tila["voitto"]:
         animaatio = [tila["kentta"], tila["naytto"]]
         piirto["ruudukko"] = animaatio[int(piirto["kuva"] % 2)]
         piirto["kuva"] += piirto["nopeus"]
-        break
-    tila["aika"] += 1
+        if not tila["tallennettu"]:
+            tila["ajasta"] = False
+            tallenna_tilastot()
+            tila["tallennettu"] = True
+    if tila["ajasta"]:
+        tila["nyt"] = datetime.datetime.now()
+        aika, millit = str(tila["nyt"] - tila["aloitus"]).split(".")
+        tila["aika"] = aika
 
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
@@ -249,6 +259,8 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         while tila["vuoro"] == None:
             miinoita(tila["kentta"], x, y)
             tila["vuoro"] = 0
+            tila["aloitus"] = datetime.datetime.now()
+            tila["ajasta"] = True
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
             if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
                 tila["havio"] = True
@@ -314,7 +326,7 @@ def piirra_kentta():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
     haravasto.piirra_tekstia("Aika:", 50, 950)
-    haravasto.piirra_tekstia(str(tila["aika"]), 50, 910)
+    haravasto.piirra_tekstia(tila["aika"], 50, 910)
     haravasto.piirra_tekstia("Vuoro:", 800, 950)
     haravasto.piirra_tekstia(str(tila["vuoro"]), 800, 910)
     haravasto.piirra_tekstia("Miinoja jäljellä:", 350, 950)
