@@ -183,7 +183,8 @@ def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     for rivi in rivit:
         for sarake in sarakkeet:
             if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
-                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                #Ehtojen täyttyessä
                 kasiteltavat.append((sarake, rivi))
     miinoja = 0
     for x, y in kasiteltavat:
@@ -228,7 +229,9 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
             if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
                 tila["havio"] = True
-            elif tila["kentta"][y][x] in MERKIT and tila["naytto"][y][x] != "f":
+            elif (tila["kentta"][y][x] in MERKIT and
+                tila["naytto"][y][x] == " "):
+                #Ehtojen täyttyessä
                 tila["naytto"][y][x] = tila["kentta"][y][x]
                 tila["vuoro"] += 1 
             elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
