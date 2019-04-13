@@ -14,18 +14,23 @@ VAIKEUSASTEET = {
     "vaikea": {"ruutuja": 20, "miinoja": 60, "piirtomarginaali": 100}
 }
 
-MERKIT = ["1", "2", "3", "4", "5", "6", "7", "8"]
+MERKIT = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "!", "x"]
 
 tila = {
     "kentta": [],
     "naytto": [],
     "vaikeus": {},
     "nimi": None,
-    "aika": "00:00:00",
+    "aika": 0.0,
     "vuoro": None,
     "jaljella": None,
     "havio": False,
     "voitto": False,
+}
+piirto = {
+    "ruudukko": [],
+    "kuva": 0,
+    "nopeus": 0.02
 }
 
 
@@ -117,6 +122,7 @@ def aloita_peli():
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
+    piirto["ruudukko"] = tila["naytto"]
     haravasto.aloita()
     tila["vuoro"] = None
     tila["kentta"] = []
@@ -204,7 +210,19 @@ def paivita_peli(kulunut_aika):
     Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
     Tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
     """
-    pass
+    if tila["jaljella"] == 0:
+        for rivi in tila["naytto"]:
+            for merkki in rivi:
+                if merkki not in MERKIT:
+                    break
+                else:
+                    tila["voitto"] = True
+    while tila["havio"] or tila["voitto"]:
+        animaatio = [tila["kentta"], tila["naytto"]]
+        piirto["ruudukko"] = animaatio[int(piirto["kuva"] % 2)]
+        piirto["kuva"] += piirto["nopeus"]
+        break
+    tila["aika"] += 1
 
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
@@ -234,7 +252,7 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         if hiiri_nappain == hiiren_nappaimet["vasen"]:
             if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
                 tila["havio"] = True
-            elif (tila["kentta"][y][x] in MERKIT and
+            elif (tila["kentta"][y][x] in MERKIT[1:-2] and
                 tila["naytto"][y][x] == " "):
                 #Ehtojen täyttyessä
                 tila["naytto"][y][x] = tila["kentta"][y][x]
@@ -278,7 +296,9 @@ def tulvataytto(x_alku, y_alku):
                     # Ehtojen täyttyessä
                     kasiteltavat.append((sarake, rivi))
         for x, y in kasiteltavat:
-            if tila["naytto"][y][x] == " " and tila["kentta"][y][x] in MERKIT:
+            if (tila["naytto"][y][x] == " " and 
+                tila["kentta"][y][x] in MERKIT[1:-2]):
+                #Ehtojen täyttyessä
                 tila["naytto"][y][x] = tila["kentta"][y][x]
                 continue
             elif tila["naytto"][y][x] == " " and tila["kentta"][y][x] != "x":
@@ -294,13 +314,13 @@ def piirra_kentta():
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
     haravasto.piirra_tekstia("Aika:", 50, 950)
-    haravasto.piirra_tekstia(tila["aika"], 50, 910)
+    haravasto.piirra_tekstia(str(tila["aika"]), 50, 910)
     haravasto.piirra_tekstia("Vuoro:", 800, 950)
     haravasto.piirra_tekstia(str(tila["vuoro"]), 800, 910)
     haravasto.piirra_tekstia("Miinoja jäljellä:", 350, 950)
     haravasto.piirra_tekstia(str(tila["jaljella"]), 350, 910)
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(tila["naytto"]):
+    for y, rivi in enumerate(piirto["ruudukko"]):
         for x, merkki in enumerate(rivi):
                 haravasto.lisaa_piirrettava_ruutu(
                     merkki,
