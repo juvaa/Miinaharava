@@ -142,6 +142,38 @@ def miinoita(kentta):
         vapaat_rudut.remove((x, y))
         kentta[y][x] = "x"
         n_miinoja -= 1
+    for y, rivi in enumerate(kentta):
+        for x, merkki in enumerate(rivi):
+            if merkki == " ":
+                kentta[y][x] = str(laske_minat(kentta, x, y))
+
+
+def laske_minat(ruudukko, x_koordinaatti, y_koordinaatti):
+    """
+    Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on. 
+    """
+    rajat = {
+        "leveys_min": 0,
+        "leveys_max": len(ruudukko[0]) - 1,
+        "korkeus_min": 0,
+        "korkeus_max": len(ruudukko) - 1
+    }
+    kasiteltavat = []
+    rivit = [y_koordinaatti - 1, y_koordinaatti, y_koordinaatti + 1]
+    sarakkeet = [x_koordinaatti - 1, x_koordinaatti, x_koordinaatti + 1]
+    for rivi in rivit:
+        for sarake in sarakkeet:
+            if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
+                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                kasiteltavat.append((sarake, rivi))
+    miinoja = 0
+    for x, y in kasiteltavat:
+        merkki = ruudukko[y][x]
+        if merkki == "x":
+            miinoja += 1
+    if miinoja == 0:
+        miinoja = " "
+    return miinoja
 
 
 def paivita_peli(kulunut_aika):
@@ -177,7 +209,7 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
             if tila["kentta"][y][x] == "x":
                 tila["havio"] = True
             elif tila["kentta"][y][x] == " ":
-                tulvataytto(tila["naytto"], x, y)
+                tulvataytto(tila["kentta"], x, y)
                 tila["vuoro"] += 1
         elif hiiri_nappain == hiiren_nappaimet["oikea"]:
                 if tila["naytto"][y][x] == " ":
@@ -203,7 +235,7 @@ def piirra_kentta():
     haravasto.piirra_tekstia("Miinoja jäljellä:", 50, 550)
     haravasto.piirra_tekstia(str(tila["jaljella"]), 400, 550)
     haravasto.aloita_ruutujen_piirto()
-    for y, rivi in enumerate(tila["naytto"]):
+    for y, rivi in enumerate(tila["kentta"]):
         for x, merkki in enumerate(rivi):
                 haravasto.lisaa_piirrettava_ruutu(
                     merkki,
