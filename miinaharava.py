@@ -35,7 +35,7 @@ piirto = {
     "ruudukko": [],
     "kuva": 0,
     "nopeus": 0.02,
-    "toistot": 1020
+    "toistot": 520
 }
 
 
@@ -133,11 +133,12 @@ def tallenna_tilastot():
     """
     Tallentaa päättyneen pelin tiedot tilastoihin:
     """
-    try:
-        with open("tilastot.CSV", "a") as tilastot:
-            tilastot.write(luo_tilastot())
-    except OSError:
-        print("Tilasto tiedostoa ei löytynyt")
+    if tila["voitto"] or tila["havio"]:
+        try:
+            with open("tilastot.CSV", "a") as tilastot:
+                tilastot.write(luo_tilastot())
+        except OSError:
+            print("Tilasto tiedostoa ei löytynyt")
 
 
 def aloita_peli():
@@ -183,6 +184,7 @@ def aloita_peli():
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
     haravasto.aloita()
+    tallenna_tilastot()
     nollaa_sanakirjat()
 
 
@@ -206,7 +208,7 @@ def nollaa_sanakirjat():
     tila["loppu"] = False
     piirto["ruudukko"] = []
     piirto["kuva"] = 0
-    piirto["toistot"] = 1020
+    piirto["toistot"] = 520
 
 
 def luo_kentta():
@@ -314,19 +316,11 @@ def paivita_peli(kulunut_aika):
         else:
             tila["loppu"] = True
         if tila["loppu"]:
-            lopeta_peli()
+            haravasto.lopeta()
     if tila["ajasta"]:
         tila["nyt"] = datetime.datetime.now()
         aika, millit = str(tila["nyt"] - tila["aloitus"]).split(".")
         tila["aika"] = aika
-
-
-def lopeta_peli():
-    """
-    Tallentaa pelin tilastot ja lopettaa pelin.
-    """
-    tallenna_tilastot()
-    haravasto.lopeta()
 
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
