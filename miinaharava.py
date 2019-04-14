@@ -2,7 +2,7 @@
 Pythonilla toteutettu versio miinaharava pelistä.
 Tekijä: Julius Välimaa, julius.valimaa@gmail.com
 """
-import copy
+from copy import deepcopy
 import datetime
 import random
 
@@ -29,12 +29,13 @@ tila = {
     "jaljella": None,
     "havio": False,
     "voitto": False,
-    "tallennettu": False,
+    "loppu": False,
 }
 piirto = {
     "ruudukko": [],
     "kuva": 0,
-    "nopeus": 0.02
+    "nopeus": 0.02,
+    "toistot": 1020
 }
 
 
@@ -88,7 +89,7 @@ def tallenna_tilastot():
 
 def aloita_peli():
     """
-    Aloittaa uuden pelin.
+    Aloittaa uuden pelin. Nollaa sanakirjat, kun edellinen peli loppuu.
     """
     while True:
         nimi = input("Anna käyttäjänimi(max 8 merkkiä): ").strip()
@@ -126,10 +127,31 @@ def aloita_peli():
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
-    piirto["ruudukko"] = tila["naytto"]
     haravasto.aloita()
-    tila["vuoro"] = None
+    nollaa_sanakirjat()
+
+
+def nollaa_sanakirjat():
+    """
+    Palauttaa pelin aikana tilan tarkasteluun käytetyt sanakirjat
+    alkuperäiseen tilaansa.
+    """
     tila["kentta"] = []
+    tila["naytto"] = []
+    tila["vaikeus"] = {}
+    tila["nimi"] = None
+    tila["aika"] = "00:00:00"
+    tila["ajasta"] = False
+    tila["aloitus"] = None
+    tila["nyt"] = None
+    tila["vuoro"] = None
+    tila["jaljella"] = None
+    tila["havio"] = False
+    tila["voitto"] = False
+    tila["loppu"] = False
+    piirto["ruudukko"] = []
+    piirto["kuva"] = 0
+    piirto["toistot"] = 1020
 
 
 def luo_kentta():
@@ -141,7 +163,7 @@ def luo_kentta():
         tila["kentta"].append([])
         for sarake in range(koko):
             tila["kentta"][-1].append(" ")
-    tila["naytto"] = copy.deepcopy(tila["kentta"])
+    tila["naytto"] = deepcopy(tila["kentta"])
 
 
 def maarita_ymparoivat(kentta, x_koordinaatti, y_koordinaatti):
@@ -210,6 +232,7 @@ def paivita_peli(kulunut_aika):
     Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
     Tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
     """
+    piirto["ruudukko"] = tila["naytto"]
     if tila["jaljella"] == 0:
         for rivi in tila["naytto"]:
             for merkki in rivi:
@@ -218,17 +241,29 @@ def paivita_peli(kulunut_aika):
                 else:
                     tila["voitto"] = True
     if tila["havio"] or tila["voitto"]:
-        animaatio = [tila["kentta"], tila["naytto"]]
-        piirto["ruudukko"] = animaatio[int(piirto["kuva"] % 2)]
-        piirto["kuva"] += piirto["nopeus"]
-        if not tila["tallennettu"]:
+        if tila["ajasta"]:
             tila["ajasta"] = False
-            tallenna_tilastot()
-            tila["tallennettu"] = True
+        if piirto["toistot"] > 0:
+            animaatio = [tila["kentta"], tila["naytto"]]
+            piirto["ruudukko"] = animaatio[int(piirto["kuva"] % 2)]
+            piirto["kuva"] += piirto["nopeus"]
+            piirto["toistot"] -= 1
+        else:
+            tila["loppu"] = True
+        if tila["loppu"]:
+            lopeta_peli()
     if tila["ajasta"]:
         tila["nyt"] = datetime.datetime.now()
         aika, millit = str(tila["nyt"] - tila["aloitus"]).split(".")
         tila["aika"] = aika
+
+
+def lopeta_peli():
+    """
+    Tallentaa pelin tilastot ja lopettaa pelin.
+    """
+    tallenna_tilastot()
+    haravasto.lopeta()
 
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
