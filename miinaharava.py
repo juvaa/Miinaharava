@@ -76,7 +76,7 @@ def luo_tilastot():
         lopputulos = "Häviö"
     paivays = datetime.datetime.isoformat(
         datetime.datetime.now(), sep=" ", timespec="seconds")
-    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko},{tulos}," \
+    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko},{tulos},"
         "{paivays}\n").format(
             nimi=tila["nimi"],
             aika=tila["aika"],
@@ -97,7 +97,7 @@ def tulosta_tilastot():
         with open("tilastot.CSV", "r") as tilastot:
             tiedot = []
             for rivi in tilastot.readlines():
-                tiedot.append(rivi)
+                tiedot.append(rivi.strip())
             tulostuksia = int((len(tiedot) / 5 + 0.95))
             print("nimi aika vuoro miinoja leveysxkorkeus tulos paivays")
             for i in range(tulostuksia):
@@ -113,11 +113,11 @@ def tulosta_tilastot():
 
 def muotoile_tulostus(sivu):
     """
-    Muotoilee rivin tulostusta varten.
+    Muotoilee sivun ja tulostaa sen.
     """
     for rivi in sivu:
-        nimi, aika, vuoro, miinat, koko, tulos, paivays = rivi.strip().split(",")
-        print(("{nimi} {aika} {vuoro} {miinoja} {koko}x{koko} {tulos} "\
+        nimi, aika, vuoro, miinat, koko, tulos, paivays = rivi.split(",")
+        print(("{nimi} {aika} {vuoro} {miinoja} {koko}x{koko} {tulos} "
             "{paivays}").format(
                 nimi=nimi,
                 aika=aika,
@@ -143,7 +143,8 @@ def tallenna_tilastot():
 
 def aloita_peli():
     """
-    Aloittaa uuden pelin. Nollaa sanakirjat, kun edellinen peli loppuu.
+    Aloittaa uuden pelin. Tallentaa tilastot ja nollaa sanakirjat,
+    kun peli loppuu.
     """
     while True:
         nimi = input("Anna käyttäjänimi(max 8 merkkiä): ").strip()
@@ -273,7 +274,7 @@ def miinoita(kentta, x_alku, y_alku):
 
 def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     """
-    Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on.
+    Laskee annetulle kentän ruudulle, montako miinaa sen ympärillä on.
     """
     kasittely = maarita_ymparoivat(ruudukko, x_koordinaatti, y_koordinaatti)
     miinoja = 0
@@ -300,7 +301,7 @@ def tarkista_voitto():
 def paivita_peli(kulunut_aika):
     """
     Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
-    Tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
+    tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
     """
     piirto["ruudukko"] = tila["naytto"]
     if tila["jaljella"] == 0:
@@ -325,8 +326,12 @@ def paivita_peli(kulunut_aika):
 
 def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
     """
-    Tätä funktiota kutsutaan, kun käyttäjä klikkaa sovellusikkunaan hiirellä.
-    Tulostaa hiiren sijainnin sekä painetun napin terminaaliin.
+    Tätä funktiota kutsutaan, kun käyttäjä klikkaa sovellusikkunaan
+    hiirellä. Ensimmäinen klikkaus kentän sisään luo miinakentän ja
+    peli alkaa. Vasen klikkaus avaa ruudun ja, jos ruutu ei ole numero,
+    aloittaa tulvatäytön kyseisestä ruudusta. Jos ruudussa on miina,
+    käynnistää häviö prosessin. Oikea klikkaus asettaa ruutuun lipun
+    ja poistaa sen, jos ruudussa on jo lippu.
     """
     hiiren_nappaimet = {
         "vasen": haravasto.HIIRI_VASEN,
@@ -361,7 +366,7 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
                 tulvataytto(x, y)
                 tila["vuoro"] += 1
         elif hiiri_nappain == hiiren_nappaimet["oikea"]:
-            if tila["naytto"][y][x] == " ":
+            if tila["naytto"][y][x] == " " and tila["jaljella"] > 0:
                 tila["naytto"][y][x] = "f"
                 tila["jaljella"] -= 1
             elif tila["naytto"][y][x] == "f":
@@ -371,8 +376,9 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
 
 def tulvataytto(x_alku, y_alku):
     """
-    Merkitsee kentällä olevat tuntemattomat ruudut turvallisiksi
-    siten, että täyttö aloitetaan annetusta x, y -pisteestä.
+    Muuttaa näytettävällä kentällä olevat tuntemattomat ruudut
+    loogista kenttää vastaavaksi siten, että täyttö aloitetaan
+    annetusta x, y -pisteestä.
     """
     tuntemattomat = [
         (x_alku, y_alku),
@@ -394,8 +400,9 @@ def tulvataytto(x_alku, y_alku):
 def piirra_kentta():
     """
     Käsittelijäfunktio, joka piirtää kaksiulotteisena listana kuvatun
-    miinakentän ruudut näkyviin peli-ikkunaan. Funktiota kutsutaan aina
-    kun pelimoottori pyytää ruudun näkymän päivitystä.
+    miinakentän ruudut, kellon, vuoro ja miina laskurin näkyviin
+    peli-ikkunaan. Funktiota kutsutaan aina kun pelimoottori pyytää
+    ruudun näkymän päivitystä.
     """
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
