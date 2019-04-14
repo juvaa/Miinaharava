@@ -66,11 +66,27 @@ def nayta_paavalikko():
         print("Hei hei!")
 
 
-def lataa_tilastot():
+def luo_tilastot():
     """
-    Lataa pelin tilastot.
+    Luo tilastoihin tallennettavan rivin päättyneen pelin tiedoilla.
     """
-    pass
+    if tila["voitto"]:
+        lopputulos = "Voitto"
+    elif tila["havio"]:
+        lopputulos = "Häviö"
+    paivays = datetime.datetime.isoformat(
+        datetime.datetime.now(), sep=" ", timespec="seconds")
+    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko}x{koko},{tulos}," \
+        "{paivays}\n").format(
+            nimi=tila["nimi"],
+            aika=tila["aika"],
+            vuoro=tila["vuoro"],
+            miinoja=tila["vaikeus"]["miinoja"],
+            koko=tila["vaikeus"]["ruutuja"],
+            tulos=lopputulos,
+            paivays=paivays
+        )
+    return tiedot
 
 
 def tulosta_tilastot():
@@ -84,7 +100,11 @@ def tallenna_tilastot():
     """
     Tallentaa päättyneen pelin tiedot tilastoihin:
     """
-    pass
+    try:
+        with open("tilastot.CSV", "a") as tilastot:
+            tilastot.write(luo_tilastot())
+    except OSError:
+        print("Tilasto tiedostoa ei löytynyt")
 
 
 def aloita_peli():
@@ -95,6 +115,8 @@ def aloita_peli():
         nimi = input("Anna käyttäjänimi(max 8 merkkiä): ").strip()
         if len(nimi) > 8:
             print("Nimi on liian pitkä")
+        elif "," in nimi:
+            print("Pilkku ei ole sallittu")
         else:
             tila["nimi"] = nimi
             break
