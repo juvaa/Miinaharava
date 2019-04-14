@@ -14,7 +14,7 @@ VAIKEUSASTEET = {
     "vaikea": {"ruutuja": 20, "miinoja": 60, "piirtomarginaali": 100}
 }
 
-MERKIT = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "!", "x"]
+MERKIT = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "f", "x"]
 
 tila = {
     "kentta": [],
@@ -76,7 +76,7 @@ def luo_tilastot():
         lopputulos = "Häviö"
     paivays = datetime.datetime.isoformat(
         datetime.datetime.now(), sep=" ", timespec="seconds")
-    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko}x{koko},{tulos}," \
+    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko},{tulos}," \
         "{paivays}\n").format(
             nimi=tila["nimi"],
             aika=tila["aika"],
@@ -93,7 +93,40 @@ def tulosta_tilastot():
     """
     Tulostaa tilastot terminaaliin.
     """
-    pass
+    try:
+        with open("tilastot.CSV", "r") as tilastot:
+            tiedot = []
+            for rivi in tilastot.readlines():
+                tiedot.append(rivi)
+            tulostuksia = int((len(tiedot) / 5 + 0.95))
+            print("nimi aika vuoro miinoja leveysxkorkeus tulos paivays")
+            for i in range(tulostuksia):
+                alku = i * 5
+                loppu = (i + 1) * 5
+                muotoile_tulostus(tiedot[alku:loppu])
+                if i < tulostuksia - 1:
+                    input("--paina ENTER jatkaaksesi tulostusta--")
+            print()
+    except OSError:
+        print("Tilasto tiedostoa ei löytynyt")
+
+
+def muotoile_tulostus(sivu):
+    """
+    Muotoilee rivin tulostusta varten.
+    """
+    for rivi in sivu:
+        nimi, aika, vuoro, miinat, koko, tulos, paivays = rivi.strip().split(",")
+        print(("{nimi} {aika} {vuoro} {miinoja} {koko}x{koko} {tulos} "\
+            "{paivays}").format(
+                nimi=nimi,
+                aika=aika,
+                vuoro=vuoro,
+                miinoja=miinat,
+                koko=koko,
+                tulos=tulos,
+                paivays=paivays
+            ))
 
 
 def tallenna_tilastot():
@@ -249,6 +282,19 @@ def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     return miinoja
 
 
+def tarkista_voitto():
+    """
+    Tarkistaa onko voittoehto täyttynyt.
+    """
+    ei_tyhja = 0
+    for rivi in tila["naytto"]:
+        for merkki in rivi:
+            if merkki in MERKIT:
+                ei_tyhja += 1
+    if ei_tyhja == (len(tila["naytto"]) * len(tila["naytto"][0])):
+        tila["voitto"] = True
+
+
 def paivita_peli(kulunut_aika):
     """
     Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
@@ -256,12 +302,7 @@ def paivita_peli(kulunut_aika):
     """
     piirto["ruudukko"] = tila["naytto"]
     if tila["jaljella"] == 0:
-        for rivi in tila["naytto"]:
-            for merkki in rivi:
-                if merkki not in MERKIT:
-                    break
-                else:
-                    tila["voitto"] = True
+        tarkista_voitto()
     if tila["havio"] or tila["voitto"]:
         if tila["ajasta"]:
             tila["ajasta"] = False
