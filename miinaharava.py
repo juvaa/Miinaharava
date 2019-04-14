@@ -2,9 +2,9 @@
 Pythonilla toteutettu versio miinaharava pelistä.
 Tekijä: Julius Välimaa, julius.valimaa@gmail.com
 """
-import random
-import datetime
 import copy
+import datetime
+import random
 
 import haravasto
 
@@ -149,10 +149,10 @@ def miinoita(kentta, x_alku, y_alku):
     Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
     """
     rajat = {
-            "leveys_min": 0,
-            "leveys_max": len(kentta[0]) - 1,
-            "korkeus_min": 0,
-            "korkeus_max": len(kentta) - 1
+        "leveys_min": 0,
+        "leveys_max": len(kentta[0]) - 1,
+        "korkeus_min": 0,
+        "korkeus_max": len(kentta) - 1
     }
     n_miinoja = tila["vaikeus"]["miinoja"]
     tila["jaljella"] = n_miinoja
@@ -184,7 +184,7 @@ def miinoita(kentta, x_alku, y_alku):
 
 def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     """
-    Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on. 
+    Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on.
     """
     rajat = {
         "leveys_min": 0,
@@ -199,7 +199,7 @@ def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
         for sarake in sarakkeet:
             if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
                 (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
-                #Ehtojen täyttyessä
+                # Ehtojen täyttyessä
                 kasiteltavat.append((sarake, rivi))
     miinoja = 0
     for x, y in kasiteltavat:
@@ -246,17 +246,17 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
         "oikea": haravasto.HIIRI_OIKEA
     }
     rajat = {
-            "leveys_min": 0,
-            "leveys_max": len(tila["kentta"][0]) - 1,
-            "korkeus_min": 0,
-            "korkeus_max": len(tila["kentta"]) - 1
-        }
+        "leveys_min": 0,
+        "leveys_max": len(tila["kentta"][0]) - 1,
+        "korkeus_min": 0,
+        "korkeus_max": len(tila["kentta"]) - 1
+    }
     x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
     y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
     if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
         (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
         # Ehtojen täyttyessä
-        while tila["vuoro"] == None:
+        if tila["vuoro"] is None:
             miinoita(tila["kentta"], x, y)
             tila["vuoro"] = 0
             tila["aloitus"] = datetime.datetime.now()
@@ -266,19 +266,19 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
                 tila["havio"] = True
             elif (tila["kentta"][y][x] in MERKIT[1:-2] and
                 tila["naytto"][y][x] == " "):
-                #Ehtojen täyttyessä
+                # Ehtojen täyttyessä
                 tila["naytto"][y][x] = tila["kentta"][y][x]
-                tila["vuoro"] += 1 
+                tila["vuoro"] += 1
             elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
                 tulvataytto(x, y)
                 tila["vuoro"] += 1
         elif hiiri_nappain == hiiren_nappaimet["oikea"]:
-                if tila["naytto"][y][x] == " ":
-                    tila["naytto"][y][x] = "f"
-                    tila["jaljella"] -= 1
-                elif tila["naytto"][y][x] == "f":
-                    tila["naytto"][y][x] = " "
-                    tila["jaljella"] += 1
+            if tila["naytto"][y][x] == " ":
+                tila["naytto"][y][x] = "f"
+                tila["jaljella"] -= 1
+            elif tila["naytto"][y][x] == "f":
+                tila["naytto"][y][x] = " "
+                tila["jaljella"] += 1
 
 
 def tulvataytto(x_alku, y_alku):
@@ -308,9 +308,9 @@ def tulvataytto(x_alku, y_alku):
                     # Ehtojen täyttyessä
                     kasiteltavat.append((sarake, rivi))
         for x, y in kasiteltavat:
-            if (tila["naytto"][y][x] == " " and 
+            if (tila["naytto"][y][x] == " " and
                 tila["kentta"][y][x] in MERKIT[1:-2]):
-                #Ehtojen täyttyessä
+                # Ehtojen täyttyessä
                 tila["naytto"][y][x] = tila["kentta"][y][x]
                 continue
             elif tila["naytto"][y][x] == " " and tila["kentta"][y][x] != "x":
@@ -334,11 +334,11 @@ def piirra_kentta():
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(piirto["ruudukko"]):
         for x, merkki in enumerate(rivi):
-                haravasto.lisaa_piirrettava_ruutu(
-                    merkki,
-                    x * 40 + tila["vaikeus"]["piirtomarginaali"],
-                    y * 40 + tila["vaikeus"]["piirtomarginaali"]
-                )
+            haravasto.lisaa_piirrettava_ruutu(
+                merkki,
+                x * 40 + tila["vaikeus"]["piirtomarginaali"],
+                y * 40 + tila["vaikeus"]["piirtomarginaali"]
+            )
     haravasto.piirra_ruudut()
 
 
