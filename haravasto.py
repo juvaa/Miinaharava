@@ -65,7 +65,7 @@ def lataa_kuvat(polku):
     lataamiseksi tästä funktiosta.
 
     Funktio käyttää Pygletin resource-moduulia, joka lataa kuvat älykkäästi.
-        Viittaukset yksittäisiin kuviin talletetaan sanakirjaan, jotta niihin on
+    Viittaukset yksittäisiin kuviin talletetaan sanakirjaan, jotta niihin on
     helppo viitata myöhemmin. Sanakirjan avaimissa numerot 0-8 merkkijonoina
     kuvaavat avattuja ruutuja, x miinoja, f lippuja ja välilyönti avaamatonta
     ruutua.
@@ -214,7 +214,7 @@ def aseta_toistuva_kasittelija(kasittelija, toistovali=1/60):
     def paivitys_kasittelija(kulunut_aika):
         # asioita tapahtuu
 
-    Ja se rekisteröidään kutsumalla tätä funktiota: 
+    Ja se rekisteröidään kutsumalla tätä funktiota:
 
     haravasto.aseta_toistuva_kasittelija(paivitys_kasittelija, 1/60)
 
@@ -284,7 +284,8 @@ def piirra_tekstia(teksti, x, y, vari=(0, 0, 0, 255), fontti="serif", koko=32):
     :param int koko: fontin koko pisteinä
     """
 
-    tekstilaatikko = pyglet.text.Label(teksti,
+    tekstilaatikko = pyglet.text.Label(
+        teksti,
         font_name=fontti,
         font_size=koko,
         color=vari,
