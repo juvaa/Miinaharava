@@ -144,9 +144,11 @@ def luo_kentta():
     tila["naytto"] = copy.deepcopy(tila["kentta"])
 
 
-def miinoita(kentta, x_alku, y_alku):
+def maarita_ymparoivat(kentta, x_koordinaatti, y_koordinaatti):
     """
-    Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
+    Funktio määrittää annettua ruutua ympäröivät 8 ruutua ja tarkistaa
+    ovatko ne kentän sisällä. Palauttaa sisällä olevat ruudut (x, y)
+    -koordinaatti pareina listassa.
     """
     rajat = {
         "leveys_min": 0,
@@ -154,21 +156,29 @@ def miinoita(kentta, x_alku, y_alku):
         "korkeus_min": 0,
         "korkeus_max": len(kentta) - 1
     }
+    tarkistetut = []
+    rivit = [y_koordinaatti - 1, y_koordinaatti, y_koordinaatti + 1]
+    sarakkeet = [x_koordinaatti - 1, x_koordinaatti, x_koordinaatti + 1]
+    for rivi in rivit:
+        for sarake in sarakkeet:
+            if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
+                (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
+                # Ehtojen täyttyessä
+                tarkistetut.append((sarake, rivi))
+    return tarkistetut
+
+
+def miinoita(kentta, x_alku, y_alku):
+    """
+    Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
+    """
     n_miinoja = tila["vaikeus"]["miinoja"]
     tila["jaljella"] = n_miinoja
     vapaat_rudut = []
     for x in range(len(kentta)):
         for y in range(len(kentta)):
             vapaat_rudut.append((x, y))
-    turva_alue = []
-    rivit = [y_alku - 1, y_alku, y_alku + 1]
-    sarakkeet = [x_alku - 1, x_alku, x_alku + 1]
-    for rivi in rivit:
-        for sarake in sarakkeet:
-            if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
-                (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
-                # Ehtojen täyttyessä
-                turva_alue.append((sarake, rivi))
+    turva_alue = maarita_ymparoivat(kentta, x_alku, y_alku)
     for x, y in turva_alue:
         vapaat_rudut.remove((x, y))
     while n_miinoja > 0:
@@ -186,23 +196,9 @@ def laske_miinat(ruudukko, x_koordinaatti, y_koordinaatti):
     """
     Laskee annetulle kentän ruudulle montako miinaa sen ympärillä on.
     """
-    rajat = {
-        "leveys_min": 0,
-        "leveys_max": len(ruudukko[0]) - 1,
-        "korkeus_min": 0,
-        "korkeus_max": len(ruudukko) - 1
-    }
-    kasiteltavat = []
-    rivit = [y_koordinaatti - 1, y_koordinaatti, y_koordinaatti + 1]
-    sarakkeet = [x_koordinaatti - 1, x_koordinaatti, x_koordinaatti + 1]
-    for rivi in rivit:
-        for sarake in sarakkeet:
-            if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
-                (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
-                # Ehtojen täyttyessä
-                kasiteltavat.append((sarake, rivi))
+    kasittely = maarita_ymparoivat(ruudukko, x_koordinaatti, y_koordinaatti)
     miinoja = 0
-    for x, y in kasiteltavat:
+    for x, y in kasittely:
         merkki = ruudukko[y][x]
         if merkki == "x":
             miinoja += 1
@@ -292,21 +288,7 @@ def tulvataytto(x_alku, y_alku):
     while tuntemattomat:
         x_kasit, y_kasit = tuntemattomat.pop()
         tila["naytto"][y_kasit][x_kasit] = tila["kentta"][y_kasit][x_kasit]
-        rajat = {
-            "leveys_min": 0,
-            "leveys_max": len(tila["naytto"][0]) - 1,
-            "korkeus_min": 0,
-            "korkeus_max": len(tila["naytto"]) - 1
-        }
-        kasiteltavat = []
-        rivit = [y_kasit - 1, y_kasit, y_kasit + 1]
-        sarakkeet = [x_kasit - 1, x_kasit, x_kasit + 1]
-        for rivi in rivit:
-            for sarake in sarakkeet:
-                if ((rajat["korkeus_min"] <= rivi <= rajat["korkeus_max"]) and
-                    (rajat["leveys_min"] <= sarake <= rajat["leveys_max"])):
-                    # Ehtojen täyttyessä
-                    kasiteltavat.append((sarake, rivi))
+        kasiteltavat = maarita_ymparoivat(tila["naytto"], x_kasit, y_kasit)
         for x, y in kasiteltavat:
             if (tila["naytto"][y][x] == " " and
                 tila["kentta"][y][x] in MERKIT[1:-2]):
