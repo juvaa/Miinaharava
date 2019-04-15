@@ -138,7 +138,7 @@ def tallenna_tilastot():
             with open("tilastot.CSV", "a") as tilastot:
                 tilastot.write(luo_tilastot())
         except OSError:
-            print("Tilasto tiedostoa ei löytynyt")
+            print("Tilasto tiedostoa ei voitu avata")
 
 
 def aloita_peli():
@@ -150,6 +150,8 @@ def aloita_peli():
         nimi = input("Anna käyttäjänimi(max 8 merkkiä): ").strip()
         if len(nimi) > 8:
             print("Nimi on liian pitkä")
+        elif nimi == "":
+            print("Anna jokin nimi")
         elif "," in nimi:
             print("Pilkku ei ole sallittu")
         else:
