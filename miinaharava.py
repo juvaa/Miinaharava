@@ -320,7 +320,10 @@ def paivita_peli(kulunut_aika):
             haravasto.lopeta()
     if tila["ajasta"]:
         tila["nyt"] = datetime.datetime.now()
-        aika, millit = str(tila["nyt"] - tila["aloitus"]).split(".")
+        try:
+            aika, millit = str(tila["nyt"] - tila["aloitus"]).split(".")
+        except ValueError:
+            aika = str(tila["nyt"] - tila["aloitus"])
         tila["aika"] = aika
 
 
