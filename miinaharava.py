@@ -98,11 +98,11 @@ def tulosta_tilastot():
             tiedot = []
             for rivi in tilastot.readlines():
                 tiedot.append(rivi.strip())
-            tulostuksia = int((len(tiedot) / 5 + 0.95))
+            tulostuksia = int((len(tiedot) / 10 + 0.95))
             print("nimi aika vuoro miinoja leveysxkorkeus tulos paivays")
             for i in range(tulostuksia):
-                alku = i * 5
-                loppu = (i + 1) * 5
+                alku = i * 10
+                loppu = (i + 1) * 10
                 muotoile_tulostus(tiedot[alku:loppu])
                 if i < tulostuksia - 1:
                     input("--paina ENTER jatkaaksesi tulostusta--")
