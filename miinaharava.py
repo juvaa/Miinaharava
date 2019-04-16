@@ -18,7 +18,7 @@ MERKIT = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "f", "x"]
 
 tila = {
     "kentta": [],
-    "naytto": [],
+    "naytto": [], # Pelaajalle näytettävä versio kentästä
     "vaikeus": {},
     "nimi": None,
     "aika": "00:00:00",
@@ -35,7 +35,8 @@ piirto = {
     "ruudukko": [],
     "kuva": 0,
     "nopeus": 0.02,
-    "toistot": 520
+    "toistot": 520,
+    "t_vari": (200, 200, 200, 255)
 }
 
 
@@ -50,7 +51,7 @@ def nayta_paavalikko():
             print("(T)ulosta tilastot")
             print("(L)opeta")
             syote = input(
-                "Valitse haluttu toiminto syöttämällä korostettu näppäin: ")
+                "Valitse syöttämällä suluissa oleva kirjain: ")
             syote = syote.strip().lower()
             if syote == "a":
                 aloita_peli()
@@ -66,39 +67,16 @@ def nayta_paavalikko():
         print("Hei hei!")
 
 
-def luo_tilastot():
-    """
-    Luo tilastoihin tallennettavan rivin päättyneen pelin tiedoilla.
-    """
-    if tila["voitto"]:
-        lopputulos = "Voitto"
-    elif tila["havio"]:
-        lopputulos = "Häviö"
-    paivays = datetime.datetime.isoformat(
-        datetime.datetime.now(), sep=" ", timespec="seconds")
-    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko},{tulos},"
-        "{paivays}\n").format(
-            nimi=tila["nimi"],
-            aika=tila["aika"],
-            vuoro=tila["vuoro"],
-            miinoja=tila["vaikeus"]["miinoja"],
-            koko=tila["vaikeus"]["ruutuja"],
-            tulos=lopputulos,
-            paivays=paivays
-        )
-    return tiedot
-
-
 def tulosta_tilastot():
     """
-    Tulostaa tilastot terminaaliin.
+    Tulostaa tilastot terminaaliin 10 riviä kerrallaan.
     """
     try:
         with open("tilastot.CSV", "r") as tilastot:
             tiedot = []
             for rivi in tilastot.readlines():
                 tiedot.append(rivi.strip())
-            tulostuksia = int((len(tiedot) / 10 + 0.95))
+            tulostuksia = int(len(tiedot) / 10 + 0.95)
             print("nimi aika vuoro miinoja leveysxkorkeus tulos paivays")
             for i in range(tulostuksia):
                 alku = i * 10
@@ -131,7 +109,7 @@ def muotoile_tulostus(sivu):
 
 def tallenna_tilastot():
     """
-    Tallentaa päättyneen pelin tiedot tilastoihin:
+    Tallentaa päättyneen pelin tiedot tilastoihin.
     """
     if tila["voitto"] or tila["havio"]:
         try:
@@ -139,6 +117,29 @@ def tallenna_tilastot():
                 tilastot.write(luo_tilastot())
         except OSError:
             print("Tilasto tiedostoa ei voitu avata")
+
+
+def luo_tilastot():
+    """
+    Luo tilastoihin tallennettavan rivin päättyneen pelin tiedoilla.
+    """
+    if tila["voitto"]:
+        lopputulos = "Voitto"
+    elif tila["havio"]:
+        lopputulos = "Häviö"
+    paivays = datetime.datetime.isoformat(
+        datetime.datetime.now(), sep=" ", timespec="seconds")
+    tiedot = ("{nimi},{aika},{vuoro},{miinoja},{koko},{tulos},"
+        "{paivays}\n").format(
+            nimi=tila["nimi"],
+            aika=tila["aika"],
+            vuoro=tila["vuoro"],
+            miinoja=tila["vaikeus"]["miinoja"],
+            koko=tila["vaikeus"]["ruutuja"],
+            tulos=lopputulos,
+            paivays=paivays
+        )
+    return tiedot
 
 
 def aloita_peli():
@@ -177,12 +178,13 @@ def aloita_peli():
     print("Ohjeet: Klikkaa hiiren vasemmalla näppäimellä ruutua,")
     print("jonka haluat avata. Klikkaa oikealla asettaaksesi lipun.")
     print("Peli päätty, kun osut miinaan tai kentällä ei ole ruutuja,")
-    print("joissa ei ole lippua.")
+    print("joita ei ole avattu tai niissä on lippu.")
     input("--Paina ENTER aloittaaksesi pelin--")
     luo_kentta()
+    piirto["ruudukko"] = tila["naytto"]
     haravasto.lataa_kuvat("spritet")
     haravasto.luo_ikkuna(
-        leveys=1000, korkeus=1000)
+        leveys=1000, korkeus=1000, taustavari=(0, 2, 71, 255))
     haravasto.aseta_piirto_kasittelija(piirra_kentta)
     haravasto.aseta_hiiri_kasittelija(kasittele_hiiri)
     haravasto.aseta_toistuva_kasittelija(paivita_peli)
@@ -252,7 +254,7 @@ def maarita_ymparoivat(kentta, x_koordinaatti, y_koordinaatti):
 
 def miinoita(kentta, x_alku, y_alku):
     """
-    Asettaa kentälle N kpl miinoja satunaisiin paikkoihin.
+    Asettaa kentälle N kpl:ta miinoja satunaisiin paikkoihin.
     """
     n_miinoja = tila["vaikeus"]["miinoja"]
     tila["jaljella"] = n_miinoja
@@ -305,7 +307,6 @@ def paivita_peli(kulunut_aika):
     Päivitää pelin tilannetta. Tarkastelee voito ja häviö ehtoja ja toteuttaa
     tarvittavat toimet niiden täyttyessä. Päivittää kelloa.
     """
-    piirto["ruudukko"] = tila["naytto"]
     if tila["jaljella"] == 0:
         tarkista_voitto()
     if tila["havio"] or tila["voitto"]:
@@ -411,12 +412,15 @@ def piirra_kentta():
     """
     haravasto.tyhjaa_ikkuna()
     haravasto.piirra_tausta()
-    haravasto.piirra_tekstia("Aika:", 50, 950)
-    haravasto.piirra_tekstia(tila["aika"], 50, 910)
-    haravasto.piirra_tekstia("Vuoro:", 800, 950)
-    haravasto.piirra_tekstia(str(tila["vuoro"]), 800, 910)
-    haravasto.piirra_tekstia("Miinoja jäljellä:", 350, 950)
-    haravasto.piirra_tekstia(str(tila["jaljella"]), 350, 910)
+    haravasto.piirra_tekstia("Aika:", 50, 950, vari=piirto["t_vari"])
+    haravasto.piirra_tekstia(tila["aika"], 50, 910, vari=piirto["t_vari"])
+    haravasto.piirra_tekstia("Vuoro:", 800, 950, vari=piirto["t_vari"])
+    haravasto.piirra_tekstia(
+        str(tila["vuoro"]), 800, 910, vari=piirto["t_vari"])
+    haravasto.piirra_tekstia(
+        "Miinoja jäljellä:", 350, 950, vari=piirto["t_vari"])
+    haravasto.piirra_tekstia(
+        str(tila["jaljella"]), 350, 910, vari=piirto["t_vari"])
     haravasto.aloita_ruutujen_piirto()
     for y, rivi in enumerate(piirto["ruudukko"]):
         for x, merkki in enumerate(rivi):
