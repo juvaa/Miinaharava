@@ -352,32 +352,33 @@ def kasittele_hiiri(hiiri_x, hiiri_y, hiiri_nappain, muokkaus_nappaimet):
     }
     x = ((hiiri_x - tila["vaikeus"]["piirtomarginaali"]) // 40)
     y = ((hiiri_y - tila["vaikeus"]["piirtomarginaali"]) // 40)
-    if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
-        (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
-        # Ehtojen täyttyessä
-        if tila["vuoro"] is None:
-            miinoita(tila["kentta"], x, y)
-            tila["vuoro"] = 0
-            tila["aloitus"] = datetime.datetime.now()
-            tila["ajasta"] = True
-        if hiiri_nappain == hiiren_nappaimet["vasen"]:
-            if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
-                tila["havio"] = True
-            elif (tila["kentta"][y][x] in MERKIT[1:-2] and
-                tila["naytto"][y][x] == " "):
-                # Ehtojen täyttyessä
-                tila["naytto"][y][x] = tila["kentta"][y][x]
-                tila["vuoro"] += 1
-            elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
-                tulvataytto(x, y)
-                tila["vuoro"] += 1
-        elif hiiri_nappain == hiiren_nappaimet["oikea"]:
-            if tila["naytto"][y][x] == " " and tila["jaljella"] > 0:
-                tila["naytto"][y][x] = "f"
-                tila["jaljella"] -= 1
-            elif tila["naytto"][y][x] == "f":
-                tila["naytto"][y][x] = " "
-                tila["jaljella"] += 1
+    if not (tila["havio"] or tila["voitto"]):
+        if ((rajat["korkeus_min"] <= y <= rajat["korkeus_max"]) and
+            (rajat["leveys_min"] <= x <= rajat["leveys_max"])):
+            # Ehtojen täyttyessä
+            if tila["vuoro"] is None:
+                miinoita(tila["kentta"], x, y)
+                tila["vuoro"] = 0
+                tila["aloitus"] = datetime.datetime.now()
+                tila["ajasta"] = True
+            if hiiri_nappain == hiiren_nappaimet["vasen"]:
+                if tila["kentta"][y][x] == "x" and tila["naytto"][y][x] != "f":
+                    tila["havio"] = True
+                elif (tila["kentta"][y][x] in MERKIT[1:-2] and
+                    tila["naytto"][y][x] == " "):
+                    # Ehtojen täyttyessä
+                    tila["naytto"][y][x] = tila["kentta"][y][x]
+                    tila["vuoro"] += 1
+                elif tila["naytto"][y][x] == " " and tila["naytto"][y][x] != "f":
+                    tulvataytto(x, y)
+                    tila["vuoro"] += 1
+            elif hiiri_nappain == hiiren_nappaimet["oikea"]:
+                if tila["naytto"][y][x] == " " and tila["jaljella"] > 0:
+                    tila["naytto"][y][x] = "f"
+                    tila["jaljella"] -= 1
+                elif tila["naytto"][y][x] == "f":
+                    tila["naytto"][y][x] = " "
+                    tila["jaljella"] += 1
 
 
 def tulvataytto(x_alku, y_alku):
